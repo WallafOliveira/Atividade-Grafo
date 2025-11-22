@@ -1,20 +1,15 @@
 def criar_grafo():
-    
-    grafo= {}
+    grafo = {}
     return grafo
 
 def inserir_vertice(grafo, vertice):
-
     for key in grafo:
         if key == vertice:
             raise Exception("Vértice já existe no grafo.")
-
     grafo[vertice] = []
-    
     return grafo
 
 def inserir_aresta(grafo, origem, destino, nao_direcionado=False):
-    
     if (origem not in grafo) or (destino not in grafo):
         raise Exception("A origem ou o destino nao existem no grafo.")
     
@@ -34,25 +29,24 @@ def vizinhos(grafo, vertice):
         return "Vértice não existe no grafo."                    
 
 def listar_vizinhos(grafo, vertice):                              
-    vizinhos = []
+    vizinhos_lista = []
     for key in grafo:
         if key == vertice:
-            vizinhos.append(grafo[vertice])
-    
-    return print(f"Vizinhos de {vertice}: {vizinhos[0]}")
+            vizinhos_lista.append(grafo[vertice])
+    return print(f"Vizinhos de {vertice}: {vizinhos_lista[0]}")
 
 def exibir_grafo(grafo):
     for key in grafo:
         print(f"\n{key}: {grafo[key]}")
 
 def remover_aresta(grafo, origem, destino, nao_direcionado=False):
-    
     if origem not in grafo:
         raise Exception("A origem nao existe no grafo.")
     else:
         if destino in grafo[origem]:
             grafo[origem].remove(destino)
-        else: raise Exception("A aresta nao existe no grafo.")
+        else:
+            raise Exception("A aresta nao existe no grafo.")
         
     if nao_direcionado:
         if destino in grafo:
@@ -62,7 +56,6 @@ def remover_aresta(grafo, origem, destino, nao_direcionado=False):
     return grafo
 
 def remover_vertice(grafo, vertice, nao_direcionado=True):
-    
     if vertice not in grafo:
         raise Exception("O vértice não existe no grafo.")
     
@@ -78,7 +71,6 @@ def existe_aresta(grafo, origem, destino):
     if origem in grafo:
         if destino in grafo[origem]:
             return True
-              
     return False
 
 def grau_vertices(grafo):
@@ -152,21 +144,63 @@ def busca_por_largura_menor_caminho(grafo, inicio, destino):
                 return
             if vizinho not in fila and vizinho not in visitados:
                 fila.append(vizinho)
-#     1. Inserir a estrutura com vértice inicial e caminho na fila
-# 2. Iniciar a lista de visitados vazia
-# 3. Enquanto a fila não estiver vazia:
-# a. Retirar o primeiro item da fila
-# b. verificar se o vértice do item retirado é o destino
-# i. Retornar o caminho caso seja
-# c. Marcar vértice como visitado
-# d. Obter os vizinhos do vértice
-# e. Para cada vizinho:
-# i. Verificar se o vizinho não está na fila
-# ii. Verificar se o vizinho já não foi visitado
-# iii. Caso ambos sejam falso, adicionar estrutura com
-# vizinho e caminho atualizado na Fila
-# 4. Retornar vazio
 
+
+def busca_por_profundidade(grafo, inicio):
+    pilha = [inicio]
+    visitados = []
+
+    print(f"\nOrdem de visitação (DFS) a partir do vértice {inicio}:")
+
+    while pilha != []:
+        atual = pilha.pop()
+        print(f"\nRetirado da pilha: {atual}")
+
+        if atual not in visitados:
+            visitados.append(atual)
+            print("Visitados até agora:", visitados)
+
+            viz = vizinhos(grafo, atual)
+            print(f"Vizinhos encontrados: {viz}")
+
+            for v in reversed(viz):
+                if v not in visitados and v not in pilha:
+                    pilha.append(v)
+
+            print("Pilha atual:", pilha)
+
+    return visitados
+
+
+def busca_profundidade_detectar_ciclo(grafo, inicio):
+    pilha = [{'vertice': inicio, 'pai': None}]
+    visitados = []
+
+    print(f"\nIniciando detecção de ciclo a partir de {inicio}:")
+
+    while pilha != []:
+        item = pilha.pop()
+        v = item['vertice']
+        pai = item['pai']
+
+        print(f"\nAnalisando vértice: {v} (pai = {pai})")
+
+        if v not in visitados:
+            visitados.append(v)
+            print("Visitados:", visitados)
+
+            for vizinho in grafo[v]:
+                if vizinho not in visitados:
+                    pilha.append({'vertice': vizinho, 'pai': v})
+                    print(f"Adicionando à pilha: {vizinho} (pai={v})")
+
+                else:
+                    if vizinho != pai:
+                        print(f"\n⚠ CICLO DETECTADO ENTRE {v} e {vizinho}!")
+                        return True
+
+    print("\nNenhum ciclo detectado.")
+    return False
 
 
 def main():
@@ -179,43 +213,52 @@ def main():
         direcionado = True
 
     while True:
-        caso = int(input("\nEscolha a ação que deseja realizar:\n1 - Mostrar o Grafo\n2 - Inserir vértice\n3 - Inserir aresta\n4 - Remover vértice\n5 - Remover aresta\n6 - Verificar existência de aresta\n7 - Calcular grau dos vértices\n8 - Verificar percurso válido\n9 - Listar vizinhos do vértice\n10 - Busca por largura\n11 - Busca por menor caminho\n0 - Sair\n"))
+        caso = int(input(
+            "\nEscolha a ação que deseja realizar:"
+            "\n1 - Mostrar o Grafo"
+            "\n2 - Inserir vértice"
+            "\n3 - Inserir aresta"
+            "\n4 - Remover vértice"
+            "\n5 - Remover aresta"
+            "\n6 - Verificar existência de aresta"
+            "\n7 - Calcular grau dos vértices"
+            "\n8 - Verificar percurso válido"
+            "\n9 - Listar vizinhos do vértice"
+            "\n10 - Busca por largura"
+            "\n11 - Busca por menor caminho"
+            "\n12 - Busca por profundidade (DFS)"
+            "\n13 - Detectar ciclo (DFS)"
+            "\n0 - Sair\n"
+        ))
+
         match caso:
             case 1:
                 exibir_grafo(grafo)
-                
             case 2:
                 vertice = input("\nDigite o vértice que deseja inserir: ")
                 grafo = inserir_vertice(grafo, vertice)
-                
             case 3:
                 origem = input("\nDigite a origem da aresta: ")
                 destino = input("\nDigite o destino da aresta: ")
                 grafo = inserir_aresta(grafo, origem, destino, direcionado)
-                
             case 4:
                 vertice = input("\nDigite o vértice que deseja remover: ")
                 grafo = remover_vertice(grafo, vertice, direcionado)
-                
             case 5:
                 origem = input("\nDigite a origem da aresta que deseja remover: ")
                 destino = input("\nDigite o destino da aresta que deseja remover: ")
-                grafo = remover_aresta(grafo, origem, destino, direcionado )
-
+                grafo = remover_aresta(grafo, origem, destino, direcionado)
             case 6:
                 origem = input("\nDigite a origem da aresta: ")
                 destino = input("\nDigite o destino da aresta: ")
-                
                 if existe_aresta(grafo, origem, destino):
                     print("\nA aresta existe.")
                 else:
                     print("\nA aresta não existe.")
-                    
             case 7:
                 print(grau_vertices(grafo))
             case 8:
                 caminho = str(input("\nDigite o caminho separado por vírgulas(sem espaços): ")).split(",")
-                
                 if percurso_valido(grafo, caminho):
                     print("\nO percurso é válido.")
                 else:
@@ -230,13 +273,21 @@ def main():
                 inicio = input("\nDigite o vértice de início da busca pelo menor caminho: ")
                 destino = input("Digite o vértice de destino da busca pelo menor caminho: ")
                 busca_por_largura_menor_caminho(grafo, inicio, destino)
+            case 12:
+                inicio = input("\nDigite o vértice de início da Busca em Profundidade: ")
+                resultado = busca_por_profundidade(grafo, inicio)
+                print("\nResultado final da DFS:", resultado)
+            case 13:
+                inicio = input("\nDigite o vértice de início da detecção de ciclo: ")
+                tem_ciclo = busca_profundidade_detectar_ciclo(grafo, inicio)
+                if tem_ciclo:
+                    print("\nO grafo POSSUI ciclo.")
+                else:
+                    print("\nO grafo NÃO possui ciclo.")
             case 0:
                 break
-
             case _:
                 print("\nOpção inválida.") 
-        
-            
 
 if __name__ == "__main__":
     main()
